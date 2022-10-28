@@ -85,7 +85,14 @@ class StableDiffusionAITPipeline(StableDiffusionPipeline):
             feature_extractor=feature_extractor,
         )
 
-        workdir = "tmp/"
+        self.clip_ait_exe = None
+        self.unet_ait_exe = None
+        self.vae_ait_exe = None
+
+    def init_ait_modules(self, batch_size):
+        workdir = f"./pipelines/pipeline_with_batch_size_{batch_size}/"
+        print(f"Loading from {workdir}")
+
         self.clip_ait_exe = self.init_ait_module(
             model_name="CLIPTextModel", workdir=workdir
         )
@@ -210,6 +217,12 @@ class StableDiffusionAITPipeline(StableDiffusionPipeline):
             list of `bool`s denoting whether the corresponding generated image likely represents "not-safe-for-work"
             (nsfw) content, according to the `safety_checker`.
         """
+
+        if "batch_size" not in kwargs:
+            raise ValueError(
+                f"`batch_size` needs to be provided as an argument (e.g. pipe(prompts, ..., batch_size=1) )"
+            )
+        self.init_ait_modules(kwargs['batch_size'])
 
         if "torch_device" in kwargs:
             device = kwargs.pop("torch_device")
@@ -358,7 +371,7 @@ class StableDiffusionAITPipeline(StableDiffusionPipeline):
             self.numpy_to_pil(image), return_tensors="pt"
         ).to(self.device)
         image, has_nsfw_concept = self.safety_checker(
-            images=image, clip_input=safety_cheker_input.pixel_values
+            images=image, clip_input=safety_cheker_input.pixel_values.to(torch.float16)
         )
 
         if output_type == "pil":

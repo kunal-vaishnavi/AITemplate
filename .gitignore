@@ -141,3 +141,7 @@ tags
 
 # vim temp files
 *.swp
+
+# compiled pipelines
+pipelines/*
+pipeline_with_batch_size_*/

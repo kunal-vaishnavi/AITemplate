@@ -204,7 +204,8 @@ def compile_unet(
     target = detect_target(
         use_fp16_acc=use_fp16_acc, convert_conv_to_gemm=convert_conv_to_gemm
     )
-    compile_model(Y, target, "./tmp", "UNet2DConditionModel", constants=params_ait)
+    folder_batch_size = int(batch_size / 2)
+    compile_model(Y, target, f"./pipelines/pipeline_with_batch_size_{folder_batch_size}", "UNet2DConditionModel", constants=params_ait)
 
 
 def compile_clip(
@@ -249,7 +250,7 @@ def compile_clip(
     target = detect_target(
         use_fp16_acc=use_fp16_acc, convert_conv_to_gemm=convert_conv_to_gemm
     )
-    compile_model(Y, target, "./tmp", "CLIPTextModel", constants=params_ait)
+    compile_model(Y, target, f"./pipelines/pipeline_with_batch_size_{batch_size}", "CLIPTextModel", constants=params_ait)
 
 
 def compile_vae(
@@ -308,7 +309,7 @@ def compile_vae(
     compile_model(
         Y,
         target,
-        "./tmp",
+        f"./pipelines/pipeline_with_batch_size_{batch_size}",
         "AutoencoderKL",
         constants=params_ait,
     )
@@ -345,7 +346,7 @@ def compile_diffusers(token, batch_size, img2img=False, use_fp16_acc=True, conve
     compile_clip(batch_size=batch_size, use_fp16_acc=use_fp16_acc, convert_conv_to_gemm=convert_conv_to_gemm)
     # UNet
     compile_unet(
-        batch_size=batch_size * 2,
+        batch_size=batch_size*2,
         ww=width,
         use_fp16_acc=use_fp16_acc,
         convert_conv_to_gemm=convert_conv_to_gemm,
