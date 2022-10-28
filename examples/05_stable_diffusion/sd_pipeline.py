@@ -27,9 +27,11 @@ def compile_pipeline(batch_size):
 
 
 def profile_pipeline(pipe, batch_size):
+    torch.backends.cudnn.benchmark = True
+
     prompts = ["a photo of an astronaut riding a horse on mars" for _ in range(batch_size)]
     num_inference_steps = 50
-    with torch.autocast("cuda"):
+    with torch.inference_mode():
         latency = benchmark_torch_function(num_inference_steps, pipe, prompts, batch_size=batch_size) / 1000
         print(f"Batch size = {batch_size}, latency = {latency} s, throughput = {batch_size / latency} queries/s")
 
