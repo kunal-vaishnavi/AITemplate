@@ -8,7 +8,7 @@ from pipeline_stable_diffusion_ait import StableDiffusionAITPipeline
 from onnxruntime.transformers.benchmark_helper import measure_memory
 
 
-def create_pipeline(batch_size, force_compile):
+def create_pipeline(batch_size, force_compile=False):
     from os.path import exists
     if force_compile or not exists(f"./pipelines/pipeline_with_batch_size_{batch_size}"):
         compile_pipeline(batch_size)
